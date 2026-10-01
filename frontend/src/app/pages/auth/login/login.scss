@@ -1,0 +1,190 @@
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  position: relative;
+  overflow: hidden;
+
+  // Subtle background glow
+  &::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+}
+
+.login-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.3s ease both;
+  position: relative;
+  z-index: 1;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.25rem;
+
+  .login-logo {
+    width: 62px;
+    height: 62px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+
+    i { font-size: 26px; color: white; }
+  }
+
+  h2 {
+    color: var(--text-color);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.login-form {
+  .field {
+    margin-bottom: 1.25rem;
+
+    label {
+      display: block;
+      color: var(--text-color-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, p-password {
+      width: 100%;
+    }
+
+    .forgot-password-link {
+      text-align: right;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      
+      a {
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: var(--primary-color-text);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .contact-admin {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+    
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: var(--primary-color-text);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-hints {
+  margin-top: 16px;
+  border-top: 1px solid var(--surface-border);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  small {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+}
+
+::ng-deep .dark-modal {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  
+  .p-dialog-header {
+    background: var(--surface-card) !important;
+    border-bottom: 1px solid var(--surface-border) !important;
+    color: var(--text-color) !important;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    
+    .p-dialog-title {
+      font-weight: 600;
+      color: var(--text-color) !important;
+    }
+    
+    .p-dialog-header-icon {
+      color: var(--text-color-secondary) !important;
+      &:hover {
+        background: rgba(255,255,255,0.05) !important;
+        color: var(--text-color) !important;
+      }
+    }
+  }
+
+  .p-dialog-content {
+    background: var(--surface-card) !important;
+    color: var(--text-color) !important;
+    padding-top: 1.5rem !important;
+    
+    p {
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .p-dialog-footer {
+    background: var(--surface-card) !important;
+    border-top: 1px solid var(--surface-border) !important;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+}

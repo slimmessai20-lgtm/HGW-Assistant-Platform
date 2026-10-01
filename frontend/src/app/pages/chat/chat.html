@@ -1,0 +1,196 @@
+<div class="chat-page">
+
+  <div class="chat-header">
+    <div class="chat-header-left">
+        <h1><i class="pi pi-comments"></i> AI Chat</h1>
+        <p>Intelligent Assistant for your Home Gateway</p>
+    </div>
+    <div class="chat-header-right">
+      @if (selectedGatewayName) {
+        <span class="gateway-badge">
+          <i class="pi pi-server"></i> {{ selectedGatewayName }}
+        </span>
+      } @else {
+        <span class="gateway-badge gateway-badge--none">
+          <i class="pi pi-exclamation-triangle"></i> No gateway selected
+        </span>
+      }
+      <span class="stat-badge"><i class="pi pi-comments"></i> {{ messages.length }}</span>
+      <span class="stat-badge tools"><i class="pi pi-wrench"></i> {{ toolCallCount }}</span>
+      <span class="model-badge">
+        <i class="pi pi-cpu"></i> GPT-OSS 120B · 48 tools
+      </span>
+    </div>
+  </div>
+
+  <div class="chat-container">
+
+    <div class="chat-sidebar">
+
+      <!-- Nouvelle conversation -->
+      <button class="btn-new-conv" (click)="newConversation()">
+        <i class="pi pi-plus"></i> New conversation
+      </button>
+
+      <!-- Export -->
+      @if (messages.length > 0) {
+        <div class="export-btns">
+          <button class="btn-export" (click)="exportJson()" title="Export as JSON">
+            <i class="pi pi-download"></i> JSON
+          </button>
+          <button class="btn-export" (click)="exportPdf()" title="Export as PDF">
+            <i class="pi pi-file-pdf"></i> PDF
+          </button>
+        </div>
+      }
+
+      <!-- Quick actions -->
+      <div class="chat-sidebar-header"><span>Quick actions</span></div>
+      <div class="quick-actions">
+        @for (action of quickActions; track action.label) {
+          <button class="quick-btn" (click)="sendQuickAction(action.prompt)">
+            <i [class]="action.icon"></i>
+            <span>{{ action.label }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Historique -->
+      @if (conversationSessions.length > 0) {
+        <div class="chat-sidebar-header" style="margin-top: 16px">
+          <span>History</span>
+          <span class="history-count">{{ conversationSessions.length }}</span>
+        </div>
+        <div class="history-list">
+          @for (session of reversedSessions; track session.id; let i = $index) {
+            <div class="history-item" [class.active]="session.id === currentSessionId">
+              <button class="history-btn" (click)="restoreSession(session)" [title]="session.title">
+                <i class="pi pi-comments"></i>
+                <div class="history-btn-inner">
+                  <span class="history-title">{{ truncate(session.title) }}</span>
+                  <span class="history-meta">{{ session.msgCount }} msg</span>
+                </div>
+              </button>
+              <button class="history-delete" (click)="deleteSession(conversationSessions.length - 1 - i)" title="Delete">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+
+    <div class="chat-main">
+      <div class="messages-container" #messagesContainer>
+
+        @if (messages.length === 0) {
+          <div class="welcome-msg">
+            <i class="pi pi-home"></i>
+            <h3>Hello! I'm your Home Gateway Assistant</h3>
+            <p>Ask me a question about your WiFi network, connected devices, firewall...</p>
+          </div>
+        }
+
+        @for (msg of messages; track msg.time) {
+          <div class="message-wrapper" [ngClass]="msg.role">
+
+            @if (msg.role === 'assistant') {
+              <div class="message-avatar">
+                <i class="pi pi-home"></i>
+              </div>
+            }
+
+            <div class="message-bubble">
+              <div class="message-content">{{ msg.content }}</div>
+              <div class="message-footer">
+                <span class="message-time">{{ msg.time }}</span>
+
+                @if (msg.role === 'assistant' && msg.audioBase64) {
+                  <button
+                    class="play-btn"
+                    [class.playing]="isPlayingAudio"
+                    [disabled]="isPlayingAudio && !currentAudio"
+                    (click)="playAudio(msg)"
+                    [title]="isPlayingAudio ? 'Stop' : 'Listen to response'">
+                    <i class="pi"
+                       [class.pi-volume-up]="!isPlayingAudio"
+                       [class.pi-stop-circle]="isPlayingAudio">
+                    </i>
+                  </button>
+                }
+
+                @if (msg.role === 'assistant' && msg.logId) {
+                  <div class="feedback-btns">
+                    @if (!msg.feedback) {
+                      <button class="feedback-btn" (click)="sendFeedback(msg, 'up')" title="Helpful">👍</button>
+                      <button class="feedback-btn" (click)="sendFeedback(msg, 'down')" title="Not helpful">👎</button>
+                    } @else {
+                      <span class="feedback-sent" [class.up]="msg.feedback === 'up'" [class.down]="msg.feedback === 'down'">
+                        {{ msg.feedback === 'up' ? '👍' : '👎' }}
+                      </span>
+                    }
+                  </div>
+                }
+
+              </div>
+            </div>
+
+            @if (msg.role === 'user') {
+              <div class="message-avatar user-av">
+                <i class="pi pi-user"></i>
+              </div>
+            }
+
+          </div>
+        }
+
+        @if (isLoading) {
+          <div class="message-wrapper assistant">
+            <div class="message-avatar"><i class="pi pi-home"></i></div>
+            <div class="message-bubble">
+              <div class="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <div class="chat-input-area">
+        @if (currentTool) {
+          <div class="tool-indicator">
+            <i class="pi pi-cog pi-spin"></i>
+            <span>{{ currentTool }}</span>
+          </div>
+        }
+
+        <div class="input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="userInput"
+            (keydown.enter)="sendMessage()"
+            [placeholder]="isRecording ? '🎤 Recording...' : 'Ask a question about your Home Gateway...'"
+            [disabled]="isLoading || isRecording"
+          />
+
+          <button class="voice-btn"
+            [class.recording]="isRecording"
+            (click)="isRecording ? stopRecording() : startRecording()"
+            [disabled]="isLoading"
+            [title]="isRecording ? 'Stop' : 'Speak'">
+            <i [class]="isRecording ? 'pi pi-stop' : 'pi pi-microphone'"></i>
+          </button>
+
+          <button class="send-btn"
+            (click)="sendMessage()"
+            [disabled]="isLoading || !userInput.trim() || isRecording">
+            <i class="pi pi-send"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

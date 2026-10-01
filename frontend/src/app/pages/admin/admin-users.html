@@ -1,0 +1,192 @@
+<div class="page-container animate-fade-in">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1><i class="pi pi-users"></i> User Management</h1>
+      <p>Create and manage accounts (general, engineer, admin)</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="loadUsers()">
+        <i class="pi pi-refresh"></i> Refresh
+      </button>
+      <button class="btn-add" (click)="openModal()">
+        <i class="pi pi-plus"></i> New User
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KPI cards ──────────────────────────────────────────────────────────── -->
+  <div class="kpi-row">
+    <div class="card kpi-card">
+      <div class="kpi-icon blue"><i class="pi pi-users"></i></div>
+      <div class="kpi-info">
+        <span class="kpi-value">{{ totalUsers }}</span>
+        <span class="kpi-label">Total Users</span>
+      </div>
+    </div>
+    <div class="card kpi-card">
+      <div class="kpi-icon green"><i class="pi pi-check-circle"></i></div>
+      <div class="kpi-info">
+        <span class="kpi-value">{{ activeCount }}</span>
+        <span class="kpi-label">Active</span>
+      </div>
+    </div>
+    <div class="card kpi-card">
+      <div class="kpi-icon purple"><i class="pi pi-shield"></i></div>
+      <div class="kpi-info">
+        <span class="kpi-value">{{ adminCount }}</span>
+        <span class="kpi-label">Admins</span>
+      </div>
+    </div>
+    <div class="card kpi-card">
+      <div class="kpi-icon orange"><i class="pi pi-wrench"></i></div>
+      <div class="kpi-info">
+        <span class="kpi-value">{{ engineerCount }}</span>
+        <span class="kpi-label">Engineers</span>
+      </div>
+    </div>
+    <div class="card kpi-card">
+      <div class="kpi-icon teal"><i class="pi pi-user"></i></div>
+      <div class="kpi-info">
+        <span class="kpi-value">{{ generalCount }}</span>
+        <span class="kpi-label">General</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loader ─────────────────────────────────────────────────────────────── -->
+  <div class="loading-center" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size:2rem; color:var(--primary)"></i>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────────── -->
+  <div class="card table-card" *ngIf="!loading">
+    <div class="card-title">
+      <i class="pi pi-list"></i> Accounts List
+      <span class="badge-count">{{ users.length }}</span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="users.length === 0">
+      <i class="pi pi-user-minus"></i>
+      <p>No users found.</p>
+    </div>
+
+    <div class="table-wrap" *ngIf="users.length > 0">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <!-- Avatar + nom -->
+            <td>
+              <div class="user-cell">
+                <div class="avatar" [class]="roleClass(user.role)">
+                  {{ initials(user.full_name) }}
+                </div>
+                <div class="user-info">
+                  <span class="user-fullname">{{ user.full_name }}</span>
+                  <span class="user-username">@{{ user.username }}</span>
+                </div>
+              </div>
+            </td>
+            <!-- Email -->
+            <td class="muted">{{ user.email || '—' }}</td>
+            <!-- Rôle -->
+            <td>
+              <span class="role-badge" [class]="roleClass(user.role)">
+                {{ roleLabel(user.role) }}
+              </span>
+            </td>
+            <!-- Statut toggle -->
+            <td>
+              <button class="toggle-btn"
+                      [class.active]="user.is_active"
+                      (click)="toggleUser(user, $event)"
+                      [title]="user.is_active ? 'Disable' : 'Enable'">
+                <span class="toggle-dot"></span>
+                <span>{{ user.is_active ? 'Active' : 'Inactive' }}</span>
+              </button>
+            </td>
+            <!-- Date -->
+            <td class="muted date-cell">{{ formatDate(user.created_at) }}</td>
+            <!-- Actions -->
+            <td>
+              <button class="btn-delete" (click)="deleteUser(user, $event)" title="Delete">
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Modal création utilisateur ─────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2><i class="pi pi-user-plus"></i> New User</h2>
+      <button class="btn-close" (click)="closeModal()"><i class="pi pi-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Nom complet -->
+      <div class="form-field">
+        <label>Full Name *</label>
+        <input type="text" [(ngModel)]="form.full_name" placeholder="Ex: John Smith" />
+      </div>
+      <!-- Username -->
+      <div class="form-field">
+        <label>Username *</label>
+        <input type="text" [(ngModel)]="form.username" placeholder="Ex: jsmith" autocomplete="off" />
+      </div>
+      <!-- Mot de passe -->
+      <div class="form-field">
+        <label>Password *</label>
+        <input type="password" [(ngModel)]="form.password" placeholder="••••••••" autocomplete="new-password" />
+      </div>
+      <!-- Email -->
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="form.email" placeholder="Ex: jean@telecom.dz" />
+      </div>
+      <!-- Rôle -->
+      <div class="form-field">
+        <label>Role *</label>
+        <select [(ngModel)]="form.role">
+          <option value="general">General</option>
+          <option value="engineer">Engineer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <!-- Erreur -->
+      <div class="form-error" *ngIf="formError">
+        <i class="pi pi-exclamation-circle"></i> {{ formError }}
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+      <button class="btn-save" (click)="saveUser()" [disabled]="saving">
+        <i class="pi pi-spin pi-spinner" *ngIf="saving"></i>
+        <i class="pi pi-check" *ngIf="!saving"></i>
+        {{ saving ? 'Creating...' : 'Create User' }}
+      </button>
+    </div>
+
+  </div>
+</div>

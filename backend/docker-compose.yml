@@ -1,0 +1,74 @@
+# ── Docker Compose – HGW AI Assistant Platform ──────────────────────────────
+# Orchestrates all services on a private Docker network (hgw_net)
+#
+# Usage:
+#   docker compose up --build        → build + start all services
+#   docker compose down              → stop all services
+#   docker compose logs -f backend   → follow backend logs
+
+services:
+
+  # ── 1. Database (MySQL 8) ───────────────────────────────────────────────────
+  db:
+    image: mysql:8
+    container_name: hgw_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DATABASE_NAME:-hgw_db}
+    expose:
+      - "3306"        # Internal only — no host mapping (avoids XAMPP conflict)
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - hgw_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 2. Backend API (FastAPI + MCP Server) ──────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hgw_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      MCP_SERVER_PATH: /app/mcp/mcpserver/main.py
+      MCP_DIR: /app/mcp
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - hgw_net
+
+  # ── 3. Frontend (Angular → Nginx) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: hgw_frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - hgw_net
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+
+# ── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  hgw_net:
+    driver: bridge

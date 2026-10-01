@@ -1,0 +1,120 @@
+<div class="page-container animate-fade-in">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1><i class="pi pi-server"></i> HGW Entries</h1>
+      <p>{{ gateways.length }} device(s) registered</p>
+    </div>
+    <div class="page-header-right" *ngIf="auth.isEngineer()">
+      <a routerLink="/dashboard/entries/add" class="btn-primary">
+        <i class="pi pi-plus"></i> Add Entry
+      </a>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <p-table
+      [value]="gateways"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5,10,25]"
+      [globalFilterFields]="['name','mac_address','ipv4_address','serial_number','software_version']"
+      dataKey="id"
+      styleClass="p-datatable-sm"
+      #dt>
+
+      <!-- Caption / Search -->
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <span class="table-title">Gateway List</span>
+          <div class="p-input-icon-left search-box">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="searchValue"
+              (input)="dt.filterGlobal(searchValue, 'contains')"
+              placeholder="Search name, MAC, IP, serial..." />
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Column Headers -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">Device <p-sortIcon field="name"/></th>
+          <th pSortableColumn="ipv4_address">IPv4 <p-sortIcon field="ipv4_address"/></th>
+          <th pSortableColumn="mac_address">MAC Address <p-sortIcon field="mac_address"/></th>
+          <th pSortableColumn="serial_number">Serial Number <p-sortIcon field="serial_number"/></th>
+          <th pSortableColumn="software_version">Version <p-sortIcon field="software_version"/></th>
+          <th pSortableColumn="status">Status <p-sortIcon field="status"/></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Rows -->
+      <ng-template pTemplate="body" let-gw>
+        <tr>
+          <!-- Device name + brand -->
+          <td>
+            <div class="gw-name">
+              <i class="pi pi-home gw-icon"></i>
+              <div>
+                <span class="gw-name-text">{{ gw.name }}</span>
+                <span class="gw-brand" *ngIf="gw.brand">{{ gw.brand }}</span>
+              </div>
+            </div>
+          </td>
+          <!-- IPv4 -->
+          <td><code class="ip-code">{{ gw.ipv4_address ?? '—' }}</code></td>
+          <!-- MAC Address -->
+          <td><code class="mac-code">{{ gw.mac_address }}</code></td>
+          <!-- Serial Number (KPI) -->
+          <td>
+            <code class="mac-code" *ngIf="gw.serial_number">{{ gw.serial_number }}</code>
+            <span *ngIf="!gw.serial_number" class="muted-dash">—</span>
+          </td>
+          <!-- Software Version -->
+          <td><code class="version-code">{{ gw.software_version ?? '—' }}</code></td>
+          <!-- Status -->
+          <td>
+            <p-tag [severity]="statusSeverity(gw.status)" [value]="statusLabel(gw.status)"></p-tag>
+          </td>
+          <!-- Actions -->
+          <td>
+            <div class="action-btns">
+              <button class="icon-btn" pTooltip="View details" tooltipPosition="top"
+                [routerLink]="['/dashboard/entries', gw.id]">
+                <i class="pi pi-eye"></i>
+              </button>
+              <button class="icon-btn" pTooltip="Edit" tooltipPosition="top"
+                *ngIf="auth.isEngineer()"
+                [routerLink]="['/dashboard/entries', gw.id, 'edit']">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="icon-btn danger" pTooltip="Delete" tooltipPosition="top"
+                *ngIf="auth.isAdmin()"
+                (click)="confirmDelete(gw)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty state -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="empty-msg">
+            <i class="pi pi-inbox"></i>
+            <span>No entries found</span>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+
+</div>

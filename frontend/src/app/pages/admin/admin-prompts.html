@@ -1,0 +1,85 @@
+<div class="prompts-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <i class="pi pi-sliders-h"></i>
+      <div>
+        <h1>Prompt Configuration</h1>
+        <p>Edit AI system prompts without redeploying the server.</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="reload()" [disabled]="reloading || loading">
+        <i class="pi" [class.pi-refresh]="!reloading" [class.pi-spin]="reloading" [class.pi-spinner]="reloading"></i>
+        {{ reloading ? 'Reloading…' : 'Reload from disk' }}
+      </button>
+      <button class="btn btn-primary" (click)="save()" [disabled]="saving || loading || !config">
+        <i class="pi" [class.pi-save]="!saving" [class.pi-spin]="saving" [class.pi-spinner]="saving"></i>
+        {{ saving ? 'Saving…' : 'Save changes' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="alert alert-success" *ngIf="saved">
+    <i class="pi pi-check-circle"></i> Prompts saved and hot-reloaded successfully.
+  </div>
+  <div class="alert alert-error" *ngIf="error">
+    <i class="pi pi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <i class="pi pi-spinner pi-spin"></i> Loading configuration…
+  </div>
+
+  <!-- Sections -->
+  <div class="sections-grid" *ngIf="config && !loading">
+
+    <!-- General (home users) -->
+    <div class="prompt-card">
+      <div class="card-header">
+        <span class="section-badge badge-general">General</span>
+        <span class="section-desc">Home users — simple, short responses</span>
+      </div>
+      <div class="field-row">
+        <label>Max tokens</label>
+        <input type="number" [(ngModel)]="config.general.max_tokens" min="50" max="2000" />
+      </div>
+      <div class="field-row field-system">
+        <label>System prompt</label>
+        <textarea [(ngModel)]="config.general.system" rows="10" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- Technical (engineers / admins) -->
+    <div class="prompt-card">
+      <div class="card-header">
+        <span class="section-badge badge-technical">Technical</span>
+        <span class="section-desc">Engineers &amp; admins — full detail, bullet points</span>
+      </div>
+      <div class="field-row">
+        <label>Max tokens</label>
+        <input type="number" [(ngModel)]="config.technical.max_tokens" min="50" max="2000" />
+      </div>
+      <div class="field-row field-system">
+        <label>System prompt</label>
+        <textarea [(ngModel)]="config.technical.system" rows="10" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- Context commands -->
+    <div class="prompt-card prompt-card-full">
+      <div class="card-header">
+        <span class="section-badge badge-context">Context commands</span>
+        <span class="section-desc">Go deeper / simpler / summarize / explain again — token budget only</span>
+      </div>
+      <div class="field-row">
+        <label>Max tokens</label>
+        <input type="number" [(ngModel)]="config.context_commands.max_tokens" min="50" max="3000" />
+      </div>
+    </div>
+
+  </div>
+</div>

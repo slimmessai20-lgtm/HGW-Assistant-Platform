@@ -1,0 +1,63 @@
+<nav class="sidebar"
+     [class.collapsed]="layout.collapsed()"
+     [class.mobile-open]="layout.mobileOpen()">
+
+  <!-- ── Logo Header ────────────────────────────── -->
+  <div class="sidebar-logo">
+    <a class="logo-icon" routerLink="/dashboard" title="HGW Assistant">
+      <i class="pi pi-home"></i>
+    </a>
+    <div class="logo-text">
+      <span class="logo-title">HGW Assistant</span>
+      <span class="logo-version">v{{ appVersion }}</span>
+    </div>
+  </div>
+
+  <!-- ── Navigation ────────────────────────────── -->
+  <div class="sidebar-nav" role="navigation" aria-label="Menu principal">
+
+    <div class="nav-section" *ngFor="let section of navSections">
+      <span class="section-label">{{ section.label }}</span>
+
+      <a class="nav-item"
+         *ngFor="let item of section.items"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: item.exact === true }">
+
+        <span class="nav-icon">
+          <i class="pi {{ item.icon }}"></i>
+        </span>
+
+        <span class="nav-label">{{ item.label }}</span>
+
+        <span class="nav-badge badge {{ item.badgeClass }}" *ngIf="item.badge">
+          {{ item.badge }}
+        </span>
+
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ── User Footer ───────────────────────────── -->
+  <div class="sidebar-footer">
+    <div class="user-section">
+
+      <a class="user-avatar" routerLink="/dashboard/profile" title="{{ currentUser.username }} · Profile">
+        {{ currentUser.username?.charAt(0)?.toUpperCase() || 'U' }}
+      </a>
+
+      <div class="user-info">
+        <span class="user-name">{{ currentUser.username || 'User' }}</span>
+        <span class="user-role">{{ currentUser.role || '—' }}</span>
+      </div>
+
+      <button class="logout-btn" title="Logout" (click)="logout()">
+        <i class="pi pi-power-off"></i>
+      </button>
+
+    </div>
+  </div>
+
+</nav>

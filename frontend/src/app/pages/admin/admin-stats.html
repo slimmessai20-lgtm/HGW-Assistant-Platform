@@ -1,0 +1,277 @@
+<div class="analytics-page">
+
+  <!-- ── Header ────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>
+        <span class="header-icon"><i class="pi pi-chart-line"></i></span>
+        Analytics
+      </h1>
+      <p class="subtitle">Real-time insights on AI assistant usage</p>
+    </div>
+    <div class="header-right">
+      <span class="last-update">Updated {{ lastUpdate | date:'HH:mm:ss' }}</span>
+      <button class="btn-refresh" (click)="manualRefresh()" [disabled]="isRefreshing">
+        <i class="pi" [class.pi-refresh]="!isRefreshing" [class.pi-spin]="isRefreshing"
+           [class.pi-spinner]="isRefreshing"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KPI Strip ─────────────────────────────────────────────────────── -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-glow" style="background:#3b82f6"></div>
+      <div class="kpi-top">
+        <span class="kpi-label">Total Messages</span>
+        <div class="kpi-icon" style="background:rgba(59,130,246,0.2);color:#60a5fa">
+          <i class="pi pi-comments"></i>
+        </div>
+      </div>
+      <div class="kpi-value">{{ kpi.total_messages }}</div>
+      <div class="kpi-sub">All time interactions</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-glow" style="background:#8b5cf6"></div>
+      <div class="kpi-top">
+        <span class="kpi-label">Voice Messages</span>
+        <div class="kpi-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa">
+          <i class="pi pi-microphone"></i>
+        </div>
+      </div>
+      <div class="kpi-value">{{ kpi.voice_messages }}</div>
+      <div class="kpi-sub">{{ kpi.voice_percentage }}% of total</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-glow" style="background:#10b981"></div>
+      <div class="kpi-top">
+        <span class="kpi-label">Active Users (24h)</span>
+        <div class="kpi-icon" style="background:rgba(16,185,129,0.2);color:#34d399">
+          <i class="pi pi-users"></i>
+        </div>
+      </div>
+      <div class="kpi-value">{{ kpi.active_users_24h }}</div>
+      <div class="kpi-sub">Unique users today</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-glow" style="background:#f59e0b"></div>
+      <div class="kpi-top">
+        <span class="kpi-label">Gateways Used</span>
+        <div class="kpi-icon" style="background:rgba(245,158,11,0.2);color:#fbbf24">
+          <i class="pi pi-sitemap"></i>
+        </div>
+      </div>
+      <div class="kpi-value">{{ kpi.gateways_count }}</div>
+      <div class="kpi-sub">HGW devices active</div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row ────────────────────────────────────────────────────── -->
+  <p class="section-label"><i class="pi pi-chart-bar"></i> Activity Overview</p>
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-chart-bar"></i>
+        <h3>Messages — Last 7 Days</h3>
+      </div>
+      <div class="chart-wrap">
+        <p-chart type="bar"
+                 [data]="activityChartData"
+                 [options]="activityChartOptions"
+                 [style]="{'height':'260px','width':'100%'}"></p-chart>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-microphone"></i>
+        <h3>Voice vs Text</h3>
+      </div>
+      <div class="chart-wrap">
+        <p-chart type="doughnut"
+                 [data]="voiceTextChartData"
+                 [options]="voiceTextChartOptions"
+                 [style]="{'height':'260px','width':'100%'}"></p-chart>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Analytics Triple ──────────────────────────────────────────────── -->
+  <p class="section-label"><i class="pi pi-sparkles"></i> Deep Analytics</p>
+  <div class="triple-grid">
+
+    <!-- Top Questions -->
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-question-circle"></i>
+        <h3>Top Questions</h3>
+      </div>
+      <div class="question-list">
+        @for (q of topQuestions; track q.question; let i = $index) {
+          <div class="question-row">
+            <span class="q-rank">{{ i + 1 }}</span>
+            <span class="q-text">{{ q.question | slice:0:60 }}{{ q.question.length > 60 ? '…' : '' }}</span>
+            <span class="q-count">{{ q.cnt }}×</span>
+          </div>
+        }
+        @if (topQuestions.length === 0) {
+          <p class="empty-state">No data yet</p>
+        }
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-thumbs-up"></i>
+        <h3>User Feedback</h3>
+      </div>
+      <div class="feedback-kpis">
+        <div class="fkpi">
+          <span class="fk-val">{{ feedbackStats.positive_rate }}%</span>
+          <span class="fk-label">Positive rate</span>
+        </div>
+        <div class="fkpi">
+          <span class="fk-val">{{ feedbackStats.total_rated }}</span>
+          <span class="fk-label">Rated responses</span>
+        </div>
+        <div class="fkpi">
+          <span class="fk-val">{{ feedbackStats.rated_rate }}%</span>
+          <span class="fk-label">Conversations rated</span>
+        </div>
+      </div>
+      <div class="feedback-bars">
+        <div class="fb-row">
+          <span class="fb-label">👍</span>
+          <div class="fb-track">
+            <div class="fb-fill up" [style.width.%]="feedbackBar(feedbackStats.up_count)"></div>
+          </div>
+          <span class="fb-pct">{{ feedbackStats.up_count }}</span>
+        </div>
+        <div class="fb-row">
+          <span class="fb-label">👎</span>
+          <div class="fb-track">
+            <div class="fb-fill down" [style.width.%]="feedbackBar(feedbackStats.down_count)"></div>
+          </div>
+          <span class="fb-pct">{{ feedbackStats.down_count }}</span>
+        </div>
+      </div>
+      <p class="fb-note">Based on {{ feedbackStats.total }} total conversations</p>
+    </div>
+
+    <!-- Response Time -->
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-clock"></i>
+        <h3>Response Time</h3>
+      </div>
+      @if (responseTime.overall) {
+        <div class="rt-hero">
+          <span class="rt-big">{{ formatDuration(responseTime.overall.avg_ms) }}</span>
+          <span class="rt-unit">average</span>
+        </div>
+        <div class="rt-minmax">
+          min {{ formatDuration(responseTime.overall.min_ms) }}
+          &nbsp;·&nbsp;
+          max {{ formatDuration(responseTime.overall.max_ms) }}
+        </div>
+      }
+      <div class="rt-rows">
+        @for (t of responseTime.by_type; track t.user_type) {
+          <div class="rt-row">
+            <span class="rt-role" [class]="'role-' + t.user_type">{{ t.user_type }}</span>
+            <span class="rt-val">{{ formatDuration(t.avg_ms) }}</span>
+            <span class="rt-count">{{ t.cnt }} msgs</span>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Hourly Heatmap ─────────────────────────────────────────────────── -->
+  <div class="card heatmap-card">
+    <div class="card-header">
+      <i class="pi pi-calendar"></i>
+      <h3>Peak Hours — Messages by Hour of Day</h3>
+    </div>
+    <div class="chart-wrap">
+      <p-chart type="bar"
+               [data]="hourlyChartData"
+               [options]="hourlyChartOptions"
+               [style]="{'height':'200px','width':'100%'}"></p-chart>
+    </div>
+  </div>
+
+  <!-- ── Tables Row ────────────────────────────────────────────────────── -->
+  <p class="section-label"><i class="pi pi-table"></i> Leaderboard & Recent Activity</p>
+  <div class="tables-row">
+
+    <!-- Top Users -->
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-users"></i>
+        <h3>Top Users</h3>
+      </div>
+      <div class="users-list">
+        @for (u of topUsers; track u.username; let i = $index) {
+          <div class="user-row">
+            <span class="u-rank">#{{ i + 1 }}</span>
+            <div class="u-avatar">{{ (u.username || '?').charAt(0) }}</div>
+            <span class="u-name">{{ u.username || '—' }}</span>
+            <span class="u-msgs">{{ u.message_count }}</span>
+            <span class="u-voice">
+              <i class="pi pi-microphone" style="color:#a78bfa;font-size:0.75rem"></i>
+              {{ u.voice_count }}
+            </span>
+          </div>
+        }
+        @if (topUsers.length === 0) {
+          <p class="empty-state">No data yet</p>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="card">
+      <div class="card-header">
+        <i class="pi pi-list"></i>
+        <h3>Recent Messages</h3>
+      </div>
+      <table class="recent-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Gateway</th>
+            <th>Message</th>
+            <th>Mode</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (msg of recentMessages; track msg.id ?? msg.username + msg.message) {
+            <tr>
+              <td class="td-user">{{ msg.username }}</td>
+              <td class="td-gw">{{ msg.gateway_name }}</td>
+              <td class="td-msg">{{ msg.message | slice:0:40 }}{{ msg.message.length > 40 ? '…' : '' }}</td>
+              <td>
+                <span class="voice-dot" [class.voice]="msg.voice_used" [class.text]="!msg.voice_used">
+                  <i class="pi" [class.pi-microphone]="msg.voice_used" [class.pi-align-left]="!msg.voice_used"></i>
+                </span>
+              </td>
+              <td class="td-dur">{{ formatDuration(msg.duration_ms) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (recentMessages.length === 0) {
+        <p class="empty-state">No recent messages</p>
+      }
+    </div>
+
+  </div>
+</div>

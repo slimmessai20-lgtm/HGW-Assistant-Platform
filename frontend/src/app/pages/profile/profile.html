@@ -1,0 +1,116 @@
+<div class="profile-page animate-fade-in">
+
+  <!-- ── Header ────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1><i class="pi pi-user-edit"></i> My Profile</h1>
+      <p>Manage your account settings</p>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+
+    <!-- ── Identity card ──────────────────────────────────────────────────── -->
+    <div class="card identity-card">
+      <div class="avatar-wrap">
+        <div class="avatar">{{ initials }}</div>
+        <div class="avatar-glow"></div>
+      </div>
+      <div class="identity-info">
+        <h2 class="identity-name">{{ user?.username }}</h2>
+        <span class="role-chip" [class]="roleClass">
+          <i class="pi" [class]="roleIcon"></i>
+          {{ roleLabel }}
+        </span>
+      </div>
+      <div class="identity-meta">
+        <div class="meta-row">
+          <span class="meta-key"><i class="pi pi-id-card"></i> Full name</span>
+          <span class="meta-val">{{ user?.full_name || '—' }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="pi pi-envelope"></i> Email</span>
+          <span class="meta-val">{{ user?.email || '—' }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="pi pi-shield"></i> Role</span>
+          <span class="meta-val">{{ roleLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Change password ────────────────────────────────────────────────── -->
+    <div class="card password-card">
+      <h3 class="card-title"><i class="pi pi-lock"></i> Change Password</h3>
+
+      @if (success) {
+        <div class="alert alert-success">
+          <i class="pi pi-check-circle"></i>
+          Password updated successfully!
+        </div>
+      }
+
+      @if (errorMsg) {
+        <div class="alert alert-error">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ errorMsg }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label>Current Password</label>
+        <div class="input-wrap">
+          <i class="pi pi-lock input-icon"></i>
+          <input type="password" [(ngModel)]="currentPassword" placeholder="Enter current password" autocomplete="current-password" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>New Password</label>
+        <div class="input-wrap">
+          <i class="pi pi-key input-icon"></i>
+          <input type="password" [(ngModel)]="newPassword" placeholder="At least 8 characters" autocomplete="new-password" />
+        </div>
+        @if (newPassword.length > 0) {
+          <div class="strength-bar">
+            <div class="strength-fill"
+              [class.weak]="newPassword.length < 8"
+              [class.ok]="newPassword.length >= 8 && newPassword.length < 12"
+              [class.strong]="newPassword.length >= 12"
+              [style.width]="(newPassword.length >= 12 ? 100 : newPassword.length >= 8 ? 66 : 33) + '%'">
+            </div>
+          </div>
+          <span class="strength-label"
+            [class.weak]="newPassword.length < 8"
+            [class.ok]="newPassword.length >= 8 && newPassword.length < 12"
+            [class.strong]="newPassword.length >= 12">
+            {{ newPassword.length < 8 ? 'Too short' : newPassword.length < 12 ? 'Good' : 'Strong' }}
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <div class="input-wrap" [class.mismatch]="confirmPassword && newPassword !== confirmPassword">
+          <i class="pi pi-check input-icon"></i>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="Repeat new password" autocomplete="new-password" />
+        </div>
+        @if (confirmPassword && newPassword !== confirmPassword) {
+          <span class="field-error">Passwords do not match</span>
+        }
+      </div>
+
+      <button class="btn-save"
+        (click)="changePassword()"
+        [disabled]="loading || !currentPassword || !newPassword || !confirmPassword">
+        @if (loading) {
+          <i class="pi pi-spin pi-spinner"></i> Saving…
+        } @else {
+          <i class="pi pi-check"></i> Update Password
+        }
+      </button>
+    </div>
+
+  </div>
+
+</div>

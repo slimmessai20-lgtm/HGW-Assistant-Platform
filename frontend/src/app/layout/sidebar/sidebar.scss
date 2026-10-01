@@ -1,0 +1,311 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--surface-card);
+  border-right: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  overflow: hidden;
+  transition: width var(--transition), transform var(--transition);
+
+  // ── Logo Header ────────────────────────────────────────────────
+  .sidebar-logo {
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+    overflow: hidden;
+    white-space: nowrap;
+
+    .logo-icon {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.40);
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: box-shadow 0.2s, transform 0.2s;
+      &:hover {
+        box-shadow: 0 4px 20px rgba(59,130,246,0.6);
+        transform: scale(1.05);
+      }
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: opacity var(--transition), width var(--transition);
+
+      .logo-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--text-color);
+        white-space: nowrap;
+        letter-spacing: -0.01em;
+      }
+
+      .logo-version {
+        font-size: 9.5px;
+        color: var(--text-color-muted);
+        white-space: nowrap;
+      }
+    }
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.625rem 0;
+
+    &::-webkit-scrollbar { width: 3px; }
+    &::-webkit-scrollbar-thumb {
+      background: var(--surface-border);
+      border-radius: 4px;
+    }
+
+    .nav-section {
+      margin-bottom: 0.25rem;
+
+      .section-label {
+        display: block;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--text-color-muted);
+        padding: 0.75rem 1.35rem 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        transition: opacity var(--transition);
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0.9rem 0.6rem 1.15rem;
+        margin: 1px 0.5rem;
+        border-radius: var(--radius-md);
+        color: var(--text-color-secondary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all var(--transition-fast);
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+
+        .nav-icon {
+          width: 20px;
+          min-width: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          i { font-size: 14.5px; }
+        }
+
+        .nav-label {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          transition: opacity var(--transition);
+        }
+
+        .nav-badge {
+          font-size: 9.5px;
+          padding: 1px 6px;
+          flex-shrink: 0;
+          transition: opacity var(--transition);
+        }
+
+        // Active indicator bar
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 18%;
+          bottom: 18%;
+          width: 3px;
+          border-radius: 0 3px 3px 0;
+          background: var(--primary);
+          transform: scaleY(0);
+          transition: transform var(--transition-fast);
+        }
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+        }
+
+        &.active {
+          background: var(--primary-light);
+          color: var(--primary);
+          font-weight: 600;
+          &::after { transform: scaleY(1); }
+          .nav-icon i { color: var(--primary); }
+        }
+      }
+    }
+  }
+
+  // ── User Footer ────────────────────────────────────────────────
+  .sidebar-footer {
+    flex-shrink: 0;
+    padding: 0.75rem;
+    border-top: 1px solid var(--surface-border);
+
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.625rem;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      white-space: nowrap;
+      transition: background var(--transition-fast);
+      cursor: default;
+      &:hover { background: var(--surface-hover); }
+
+      .user-avatar {
+        width: 32px;
+        min-width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+        text-decoration: none;
+        cursor: pointer;
+        transition: box-shadow 0.2s, transform 0.2s;
+        &:hover {
+          box-shadow: 0 0 0 3px rgba(59,130,246,0.35);
+          transform: scale(1.07);
+        }
+      }
+
+      .user-info {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        transition: opacity var(--transition);
+        .user-name {
+          display: block;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: var(--text-color);
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .user-role {
+          display: block;
+          font-size: 10.5px;
+          color: var(--text-color-secondary);
+        }
+      }
+
+      .logout-btn {
+        background: none;
+        border: 1px solid transparent;
+        color: var(--text-color-secondary);
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all var(--transition-fast), opacity var(--transition);
+        &:hover {
+          background: var(--danger-light);
+          border-color: rgba(239, 68, 68, 0.3);
+          color: var(--danger);
+        }
+      }
+    }
+  }
+
+  // ── Collapsed State (Desktop icon-only) ────────────────────────
+  &.collapsed {
+    width: var(--sidebar-collapsed-width);
+
+    // Logo
+    .sidebar-logo {
+      justify-content: center;
+      padding: 0;
+      .logo-text { display: none !important; }
+    }
+
+    // Nav sections — hide labels/badges/section titles
+    .nav-section {
+      margin-bottom: 0;
+      .section-label { display: none !important; }
+    }
+
+    .nav-label,
+    .nav-badge { display: none !important; }
+
+    .nav-item {
+      justify-content: center;
+      gap: 0;
+      padding: 0.65rem;
+      margin: 2px 0.4rem;
+      .nav-icon {
+        width: 20px;
+        min-width: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    // Footer — show only the avatar
+    .sidebar-footer {
+      padding: 0.5rem;
+      .user-section {
+        justify-content: center;
+        padding: 0.4rem;
+        gap: 0;
+        .user-info  { display: none !important; }
+        .logout-btn { display: none !important; }
+        .user-avatar {
+          margin: 0 auto;
+        }
+      }
+    }
+  }
+
+  // ── Mobile ──────────────────────────────────────────────────────
+  @media (max-width: 991px) {
+    transform: translateX(-100%);
+    width: var(--sidebar-width) !important;
+    box-shadow: var(--shadow-lg);
+
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+}

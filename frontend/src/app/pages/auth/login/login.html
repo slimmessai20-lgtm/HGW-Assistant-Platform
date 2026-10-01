@@ -1,0 +1,97 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <i class="pi pi-home"></i>
+      </div>
+      <h2>Home Gateway</h2>
+      <p>Intelligent assistant for your network</p>
+    </div>
+
+    <div class="login-form">
+      <div *ngIf="errorMsg" class="error-banner">
+        <i class="pi pi-exclamation-triangle"></i> {{ errorMsg }}
+      </div>
+
+      <div class="field">
+        <label>Username</label>
+        <input pInputText [(ngModel)]="username" placeholder="Username"
+          (keydown.enter)="login()" [disabled]="isLoading" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <p-password [(ngModel)]="password" [feedback]="false" placeholder="••••••••"
+          [disabled]="isLoading" styleClass="w-full">
+        </p-password>
+        <div class="forgot-password-link">
+          <a (click)="showForgotModal = true">Forgot password?</a>
+        </div>
+      </div>
+
+      <p-button
+        [label]="isLoading ? 'Signing in...' : 'Sign in'"
+        icon="pi pi-sign-in"
+        styleClass="w-full"
+        [loading]="isLoading"
+        [disabled]="isLoading || !username || !password"
+        (onClick)="login()">
+      </p-button>
+      
+      <div class="contact-admin">
+        Don't have an account? <a (click)="showRequestModal = true">Request an Account</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Reset Password" [(visible)]="showForgotModal" [modal]="true" [style]="{width: '400px'}" styleClass="dark-modal">
+    <div *ngIf="!forgotMsg" class="flex flex-column gap-3 pt-3">
+        <p>Enter your email address to receive a password reset link.</p>
+        <div class="field w-full mb-0">
+            <input pInputText [(ngModel)]="forgotEmail" placeholder="Email" class="w-full" />
+        </div>
+    </div>
+    
+    <div *ngIf="forgotMsg" class="p-3 mb-3 border-round text-blue-800 bg-blue-100">
+        {{ forgotMsg }}
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button *ngIf="!forgotMsg" label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showForgotModal = false"></p-button>
+        <p-button *ngIf="!forgotMsg" label="Send Link" icon="pi pi-check" [loading]="forgotLoading" (onClick)="requestPasswordReset()"></p-button>
+        <p-button *ngIf="forgotMsg" label="Close" [text]="true" (onClick)="showForgotModal = false"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Request an Account" [(visible)]="showRequestModal" [modal]="true" [style]="{width: '450px'}" styleClass="dark-modal">
+    <div *ngIf="!requestMsg" class="flex flex-column gap-3 pt-3">
+        <p>Submit your details to request an account from the administrator.</p>
+        <div class="flex gap-2">
+            <div class="field w-6 mb-0">
+                <input pInputText [(ngModel)]="reqFirstName" placeholder="First Name" class="w-full" />
+            </div>
+            <div class="field w-6 mb-0">
+                <input pInputText [(ngModel)]="reqLastName" placeholder="Last Name" class="w-full" />
+            </div>
+        </div>
+        <div class="field w-full mb-0">
+            <input pInputText [(ngModel)]="reqEmail" placeholder="Email Address" class="w-full" />
+        </div>
+        <div class="field w-full mb-0">
+            <p-select [options]="roleOptions" [(ngModel)]="reqRole" optionLabel="label" optionValue="value" placeholder="Select a Role" [style]="{'width':'100%'}" appendTo="body"></p-select>
+        </div>
+        <div class="field w-full mb-0">
+            <textarea pInputTextarea [(ngModel)]="reqMessage" rows="3" placeholder="Why do you need access?" class="w-full"></textarea>
+        </div>
+    </div>
+    
+    <div *ngIf="requestMsg" class="p-3 mb-3 border-round text-blue-800 bg-blue-100">
+        {{ requestMsg }}
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button *ngIf="!requestMsg" label="Cancel" icon="pi pi-times" [text]="true" (onClick)="showRequestModal = false"></p-button>
+        <p-button *ngIf="!requestMsg" label="Submit Request" icon="pi pi-send" [loading]="reqLoading" (onClick)="submitAccountRequest()" [disabled]="!reqFirstName || !reqLastName || !reqEmail"></p-button>
+        <p-button *ngIf="requestMsg" label="Close" [text]="true" (onClick)="showRequestModal = false"></p-button>
+    </ng-template>
+</p-dialog>

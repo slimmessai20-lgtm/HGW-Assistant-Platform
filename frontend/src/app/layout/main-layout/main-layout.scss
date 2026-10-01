@@ -1,0 +1,43 @@
+.layout-wrapper {
+  min-height: 100vh;
+
+  .layout-main-container {
+    margin-left: var(--sidebar-width);
+    padding-top: var(--topbar-height);
+    min-height: 100vh;
+    background: var(--bg-base);
+    transition: margin-left var(--transition);
+  }
+
+  .layout-main {
+    min-height: calc(100vh - var(--topbar-height));
+  }
+
+  // Overlay backdrop (mobile)
+  .layout-mask {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 997;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.2s ease both;
+  }
+
+  // Desktop — icon-only collapsed sidebar
+  &.sidebar-collapsed {
+    .layout-main-container {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+  }
+
+  // Mobile
+  @media (max-width: 991px) {
+    .layout-main-container {
+      margin-left: 0 !important;
+    }
+    &.sidebar-mobile-open .layout-mask {
+      display: block;
+    }
+  }
+}

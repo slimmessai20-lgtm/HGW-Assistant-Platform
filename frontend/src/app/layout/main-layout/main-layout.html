@@ -1,0 +1,15 @@
+<div class="layout-wrapper"
+     [class.sidebar-collapsed]="layout.collapsed()"
+     [class.sidebar-mobile-open]="layout.mobileOpen()">
+
+  <app-topbar></app-topbar>
+  <app-sidebar></app-sidebar>
+
+  <div class="layout-main-container">
+    <div class="layout-main animate-fade-in">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <div class="layout-mask" (click)="layout.closeMobileSidebar()"></div>
+</div>

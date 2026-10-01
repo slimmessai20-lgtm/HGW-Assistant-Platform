@@ -1,0 +1,319 @@
+<div class="page-container animate-fade-in">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1><i class="pi pi-list"></i> Logs</h1>
+      <p>Complete history of interactions with the AI assistant</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export" (click)="exportCsv()" [disabled]="!logs.length" title="Export filtered logs as CSV">
+        <i class="pi pi-download"></i> Export CSV
+      </button>
+      <button class="btn-refresh" (click)="loadLogs()">
+        <i class="pi pi-refresh"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Filters ─────────────────────────────────────────────────────────── -->
+  <div class="card filter-card">
+    <h3 class="card-title"><i class="pi pi-filter"></i> Filters</h3>
+    <div class="filter-row">
+      <div class="filter-field">
+        <label>User</label>
+        <input type="text" [(ngModel)]="filterUsername" placeholder="ex: admin" />
+      </div>
+      <div class="filter-field">
+        <label>Gateway</label>
+        <input type="text" [(ngModel)]="filterGateway" placeholder="ex: HGW-Office" />
+      </div>
+      <div class="filter-field">
+        <label>From</label>
+        <input type="date" [(ngModel)]="filterDateFrom" />
+      </div>
+      <div class="filter-field">
+        <label>To</label>
+        <input type="date" [(ngModel)]="filterDateTo" />
+      </div>
+      <div class="filter-field">
+        <label>Role</label>
+        <select [(ngModel)]="filterRole">
+          <option value="">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="engineer">Engineer</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="applyFilters()">
+          <i class="pi pi-search"></i> Filter
+        </button>
+        <button class="btn-reset" (click)="resetFilters()">
+          <i class="pi pi-times"></i> Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Logs table + detail panel ───────────────────────────────────────── -->
+  <div class="content-row">
+
+    <!-- Table -->
+    <div class="card table-card" [class.with-detail]="selectedLog">
+      <h3 class="card-title">
+        <i class="pi pi-list"></i> Logs
+        <span class="badge-count">{{ logs.length }}</span>
+        @if (logs.length > 0) {
+          <span class="page-info">page {{ currentPage }}/{{ totalPages }}</span>
+        }
+      </h3>
+
+      <!-- Loading -->
+      <div class="loading-center" *ngIf="loadingLogs">
+        <i class="pi pi-spin pi-spinner" style="font-size:1.5rem; color:var(--primary)"></i>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="!loadingLogs && logs.length === 0">
+        <i class="pi pi-inbox"></i>
+        <p>No conversations found</p>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap" *ngIf="!loadingLogs && logs.length > 0">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Gateway</th>
+              <th>Message</th>
+              <th>Tools</th>
+              <th>Voice</th>
+              <th>Duration</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of pagedLogs"
+              [class.selected]="selectedLog?.id === log.id"
+              (click)="selectLog(log)">
+              <td class="muted">#{{ log.id }}</td>
+              <td>
+                <span class="user-chip">{{ log.username || '—' }}</span>
+              </td>
+              <td>
+                <span class="role-chip" [class]="roleClass(log.user_type)">
+                  <i class="pi" [class]="roleIcon(log.user_type)"></i>
+                  {{ roleLabel(log.user_type) }}
+                </span>
+              </td>
+              <td class="muted">{{ log.gateway_name || '—' }}</td>
+              <td class="msg-cell">{{ truncate(log.message) }}</td>
+              <td>
+                <span class="tool-badge" *ngIf="log.tool_calls > 0">{{ log.tool_calls }}</span>
+                <span class="muted" *ngIf="log.tool_calls === 0">—</span>
+              </td>
+              <td>
+                <i class="pi pi-microphone voice-icon" *ngIf="log.voice_used" title="Voice"></i>
+                <span class="muted" *ngIf="!log.voice_used">—</span>
+              </td>
+              <td class="muted">{{ formatDuration(log.duration_ms) }}</td>
+              <td class="muted date-cell">{{ formatDate(log.created_at) }}</td>
+              <td>
+                <button class="btn-delete" (click)="deleteLog(log, $event)" title="Delete">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (!loadingLogs && totalPages > 1) {
+        <div class="pagination-bar">
+          <button class="pg-btn pg-arrow" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          @for (p of pageNumbers; track $index) {
+            @if (p === '...') {
+              <span class="pg-ellipsis">…</span>
+            } @else {
+              <button class="pg-btn" [class.active]="p === currentPage" (click)="goToPage(+p)">{{ p }}</button>
+            }
+          }
+          <button class="pg-btn pg-arrow" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Detail panel — côte-à-côte -->
+    <div class="card detail-card" *ngIf="selectedLog">
+
+      <!-- Header -->
+      <div class="detail-header">
+        <h3 class="card-title"><i class="pi pi-eye"></i> Detail #{{ selectedLog.id }}</h3>
+        <button class="btn-close" (click)="selectedLog = null"><i class="pi pi-times"></i></button>
+      </div>
+
+      <!-- Metadata -->
+      <div class="detail-meta">
+        <div class="meta-item">
+          <span class="meta-label">User</span>
+          <span class="meta-value">{{ selectedLog.username || '—' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Role</span>
+          <span class="meta-value">
+            <span class="role-chip" [class]="roleClass(selectedLog.user_type)">
+              <i class="pi" [class]="roleIcon(selectedLog.user_type)"></i>
+              {{ roleLabel(selectedLog.user_type) }}
+            </span>
+          </span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Gateway</span>
+          <span class="meta-value">{{ selectedLog.gateway_name || '—' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">{{ formatDate(selectedLog.created_at) }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">MCP Tools</span>
+          <span class="meta-value">{{ selectedLog.tool_calls }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Mode</span>
+          <span class="meta-value">{{ selectedLog.voice_used ? '🎤 Voice' : '⌨️ Text' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Duration</span>
+          <span class="meta-value">{{ formatDuration(selectedLog.duration_ms) }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Session</span>
+          <span class="meta-value">{{ selectedLog.session_id ? '#' + selectedLog.session_id : '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Side-by-side: Question | Adapted Response -->
+      <div class="side-by-side-label">
+        <span class="sbs-tag question-tag"><i class="pi pi-user"></i> Question</span>
+        <i class="pi pi-arrow-right sbs-arrow"></i>
+        <span class="sbs-tag response-tag">
+          <i class="pi" [class]="roleIcon(selectedLog.user_type)"></i>
+          Response — {{ roleLabel(selectedLog.user_type) }}
+        </span>
+      </div>
+
+      <div class="side-by-side">
+        <div class="detail-bubble user-bubble">
+          <div class="bubble-text">{{ selectedLog.message }}</div>
+        </div>
+        <div class="detail-bubble assistant-bubble">
+          <div class="bubble-text">{{ selectedLog.response }}</div>
+        </div>
+      </div>
+
+      <!-- ── Admin correction section ─────────────────────────── -->
+      <div class="correction-section">
+        <div class="correction-header">
+          <span class="correction-title">
+            <i class="pi pi-pencil"></i> Correct Response
+          </span>
+          @if (existingCorrection) {
+            <span class="correction-badge-saved">
+              <i class="pi pi-check-circle"></i> Corrected
+            </span>
+          }
+        </div>
+        <textarea
+          class="correction-textarea"
+          [(ngModel)]="editedResponse"
+          rows="5"
+          placeholder="Edit the AI response to save a corrected version as evaluation data…">
+        </textarea>
+        <div class="correction-actions">
+          <button class="btn-reset-correction"
+                  (click)="editedResponse = selectedLog!.response; correctionSaved = false"
+                  [disabled]="correctionLoading">
+            <i class="pi pi-refresh"></i> Reset
+          </button>
+          <button class="btn-save-correction"
+                  (click)="saveCorrection()"
+                  [disabled]="correctionLoading || !editedResponse.trim()">
+            @if (correctionLoading) {
+              <i class="pi pi-spin pi-spinner"></i> Saving…
+            } @else if (correctionSaved) {
+              <i class="pi pi-check"></i> Saved!
+            } @else {
+              <i class="pi pi-save"></i> Save Correction
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Compare G/T section ──────────────────────────────── -->
+      <div class="compare-section">
+        <div class="compare-header">
+          <span class="compare-title">
+            <i class="pi pi-sliders-h"></i> General / Technical Comparison
+          </span>
+          <button class="btn-compare"
+                  (click)="runCompare()"
+                  [disabled]="compareLoading">
+            @if (compareLoading) {
+              <i class="pi pi-spin pi-spinner"></i> Running…
+            } @else {
+              <i class="pi pi-refresh"></i> Rejouer G/T
+            }
+          </button>
+        </div>
+
+        @if (compareLoading) {
+          <div class="compare-loading">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Querying the gateway…</span>
+          </div>
+        }
+
+        @if (compareError) {
+          <div class="compare-error">
+            <i class="pi pi-exclamation-triangle"></i> {{ compareError }}
+          </div>
+        }
+
+        @if (compareResult && !compareLoading) {
+          <div class="compare-columns">
+            <!-- General column -->
+            <div class="compare-col compare-col--general">
+              <div class="compare-col-header">
+                <i class="pi pi-user"></i> General
+                <span class="compare-tools-badge">{{ compareResult.general_tools }} tool(s)</span>
+              </div>
+              <div class="compare-col-body">{{ compareResult.general }}</div>
+            </div>
+            <!-- Technical column -->
+            <div class="compare-col compare-col--technical">
+              <div class="compare-col-header">
+                <i class="pi pi-wrench"></i> Technical
+                <span class="compare-tools-badge">{{ compareResult.technical_tools }} tool(s)</span>
+              </div>
+              <div class="compare-col-body">{{ compareResult.technical }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

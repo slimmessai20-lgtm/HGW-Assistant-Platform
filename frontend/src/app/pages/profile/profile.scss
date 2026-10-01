@@ -1,0 +1,235 @@
+.profile-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+  h1 {
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--text-primary); margin: 0 0 4px;
+    display: flex; align-items: center; gap: 10px;
+    i { color: var(--primary); }
+  }
+  p { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+// ── Identity card ──────────────────────────────────────────────────────────────
+.identity-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; font-weight: 700; color: white;
+  position: relative; z-index: 1;
+}
+
+.avatar-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #8b5cf6);
+  opacity: 0.2;
+  filter: blur(8px);
+}
+
+.identity-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.identity-name {
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--text-primary); margin: 0;
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 0.78rem; font-weight: 700;
+  i { font-size: 0.7rem; }
+  &.role-admin    { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+  &.role-engineer { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  &.role-general  { background: rgba(59,130,246,0.12); color: #3b82f6; }
+}
+
+.identity-meta {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--surface-hover, rgba(148,163,184,0.05));
+  border-radius: 8px;
+  gap: 8px;
+}
+
+.meta-key {
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--text-muted);
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+  i { font-size: 0.7rem; }
+}
+
+.meta-val {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+// ── Password card ──────────────────────────────────────────────────────────────
+.password-card {
+  .card-title {
+    font-size: 0.9rem; font-weight: 600; color: var(--primary);
+    margin: 0 0 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--surface-border);
+  }
+}
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+
+  &.alert-success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #22c55e;
+  }
+  &.alert-error {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #ef4444;
+  }
+}
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+}
+
+.input-wrap {
+  position: relative;
+
+  .input-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+    background: var(--surface-ground);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    &:focus { border-color: var(--primary); }
+  }
+
+  &.mismatch input { border-color: #ef4444; }
+}
+
+// ── Password strength ─────────────────────────────────────────────────────────
+.strength-bar {
+  height: 3px;
+  background: var(--surface-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.3s, background 0.3s;
+  &.weak   { background: #ef4444; }
+  &.ok     { background: #f59e0b; }
+  &.strong { background: #22c55e; }
+}
+
+.strength-label {
+  font-size: 0.72rem; font-weight: 600;
+  &.weak   { color: #ef4444; }
+  &.ok     { color: #f59e0b; }
+  &.strong { color: #22c55e; }
+}
+
+.field-error {
+  font-size: 0.75rem; color: #ef4444; font-weight: 500;
+}
+
+// ── Save button ───────────────────────────────────────────────────────────────
+.btn-save {
+  width: 100%;
+  margin-top: 0.5rem;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 20px;
+  border-radius: 8px; border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  &:hover:not(:disabled) { background: var(--primary-dark, #2563eb); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 700px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}

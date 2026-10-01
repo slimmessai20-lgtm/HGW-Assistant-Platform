@@ -1,0 +1,141 @@
+@if (loading) {
+  <div class="loading-center">
+    <i class="pi pi-spin pi-spinner" style="font-size:2rem; color: var(--primary)"></i>
+  </div>
+}
+
+<p-toast></p-toast>
+
+@if (!loading && gateway) {
+  <div class="detail-container animate-fade-in">
+
+    <!-- ── Header ──────────────────────────────────── -->
+    <div class="detail-header">
+      <div class="header-left">
+        <a routerLink="/dashboard/entries" class="btn-back">
+          <i class="pi pi-arrow-left"></i>
+        </a>
+        <div class="gateway-title">
+          <div class="gateway-brand-icon">
+            <i [class]="getBrandIcon(gateway.brand)"></i>
+          </div>
+          <div>
+            <h1>{{ gateway.name }}</h1>
+            <span class="subtitle">{{ gateway.brand }} — {{ gateway.surname || gateway.ipv4_address }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <p-tag [severity]="pingStatusSeverity" [value]="pingStatusLabel" class="ping-badge"></p-tag>
+        <p-tag [severity]="getStatusSeverity(gateway.status)" [value]="getStatusLabel(gateway.status)"></p-tag>
+        <a [routerLink]="['/dashboard/entries', gateway.id, 'edit']" class="btn-edit">
+          <i class="pi pi-pencil"></i> Edit
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Info row ───────────────────────────────── -->
+    <div class="info-row">
+
+      <!-- Device Info KPIs -->
+      <div class="card info-card">
+        <h3 class="card-title">
+          <i class="pi pi-microchip"></i> Device Info KPIs
+          <button class="btn-fetch" (click)="fetchDeviceInfo()" [disabled]="fetchLoading"
+                  pTooltip="Récupérer SerialNumber et BaseMAC depuis le HGW via Telnet" tooltipPosition="top">
+            <i [class]="fetchLoading ? 'pi pi-spin pi-spinner' : 'pi pi-download'"></i>
+            {{ fetchLoading ? 'Fetching...' : 'Auto-fetch HGW' }}
+          </button>
+        </h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Serial Number</span>
+            <span class="info-value mono" [class.muted]="!gateway.serial_number">
+              {{ gateway.serial_number || '—' }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Base MAC</span>
+            <span class="info-value mono" [class.muted]="!gateway.base_mac">
+              {{ gateway.base_mac || '—' }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">MAC Address</span>
+            <span class="info-value mono">{{ gateway.mac_address }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Version</span>
+            <span class="info-value mono">{{ gateway.software_version || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network -->
+      <div class="card info-card">
+        <h3 class="card-title"><i class="pi pi-globe"></i> Network</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">IPv4</span>
+            <span class="info-value mono">{{ gateway.ipv4_address || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">IPv6</span>
+            <span class="info-value mono small">{{ gateway.ipv6_address || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telnet -->
+      <div class="card info-card">
+        <h3 class="card-title"><i class="pi pi-server"></i> Telnet Connection</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Host</span>
+            <span class="info-value mono">{{ gateway.telnet_host || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Port</span>
+            <span class="info-value mono">{{ gateway.telnet_port || 23 }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">User</span>
+            <span class="info-value mono">{{ gateway.telnet_user || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Password</span>
+            <span class="info-value mono muted">••••••••</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Ping chart ─────────────────────────────── -->
+    <div class="card ping-card">
+      <div class="ping-header">
+        <h3 class="card-title"><i class="pi pi-chart-line"></i> TCP Latency (port {{ gateway.telnet_port || 23 }})</h3>
+        <div class="ping-stat">
+          @if (pingLatency !== null) {
+            <span class="ping-value">{{ pingLatency }} ms</span>
+          } @else {
+            <span class="ping-value muted">— ms</span>
+          }
+          <span class="ping-note">Every 8s</span>
+        </div>
+      </div>
+      <div class="chart-container">
+        <p-chart type="line" [data]="pingData" [options]="pingOptions" height="120px"></p-chart>
+      </div>
+    </div>
+
+    <!-- ── Notes ─────────────────────────────────── -->
+    @if (gateway.notes) {
+      <div class="card notes-card">
+        <h3 class="card-title"><i class="pi pi-file-edit"></i> Notes</h3>
+        <p class="notes-text">{{ gateway.notes }}</p>
+      </div>
+    }
+
+  </div>
+}

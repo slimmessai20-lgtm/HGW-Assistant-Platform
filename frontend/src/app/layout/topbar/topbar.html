@@ -1,0 +1,104 @@
+<header class="topbar" [class.sidebar-collapsed]="layout.collapsed()">
+
+  <!-- ── Left ────────────────────────────────────────── -->
+  <div class="topbar-start">
+    <button class="icon-btn menu-btn" (click)="layout.toggleSidebar()" aria-label="Toggle menu">
+      <i class="pi pi-bars"></i>
+    </button>
+    <div class="breadcrumb">
+      <i class="pi pi-home breadcrumb-home"></i>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Dashboard</span>
+    </div>
+  </div>
+
+  <!-- ── Center status pill ───────────────────────────── -->
+  <div class="topbar-center">
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      <span>HGW · 192.168.2.254</span>
+    </div>
+  </div>
+
+  <!-- ── Right ───────────────────────────────────────── -->
+  <div class="topbar-end">
+
+    <!-- Notifications -->
+    <div class="notif-wrap">
+      <button class="icon-btn notif-btn" (click)="toggleNotifs()" aria-label="Notifications">
+        <i class="pi pi-bell"></i>
+        @if (notifUnread > 0) {
+          <span class="notif-badge">{{ notifUnread }}</span>
+        }
+      </button>
+
+      @if (showNotifs) {
+        <div class="notif-panel">
+          <div class="notif-header">
+            <span class="notif-title">Recent Activity</span>
+            @if (notifItems.length > 0) {
+              <button class="notif-view-all" (click)="goToLogs()">View all logs</button>
+            }
+          </div>
+
+          @if (notifItems.length === 0) {
+            <div class="notif-empty">
+              <i class="pi pi-check-circle"></i>
+              <span>No recent activity</span>
+            </div>
+          }
+
+          @for (n of notifItems; track n.id) {
+            <div class="notif-item" (click)="goToLogs()">
+              <div class="notif-icon" [class.voice]="n.voice_used">
+                <i class="pi" [class.pi-microphone]="n.voice_used" [class.pi-comments]="!n.voice_used"></i>
+              </div>
+              <div class="notif-body">
+                <div class="notif-user">{{ n.username || 'Unknown user' }}</div>
+                <div class="notif-msg">{{ n.message.length > 50 ? (n.message | slice:0:50) + '…' : n.message }}</div>
+              </div>
+              <div class="notif-time">{{ formatTime(n.created_at) }}</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Theme toggle -->
+    <button class="icon-btn theme-btn" (click)="toggleDark()" [title]="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      <i class="pi" [class.pi-sun]="isDark" [class.pi-moon]="!isDark"></i>
+    </button>
+
+    <span class="topbar-divider"></span>
+
+    <!-- User menu -->
+    <div class="user-wrap">
+      <div class="user-btn" (click)="toggleUserMenu()">
+        <div class="user-avatar">{{ userInitials }}</div>
+        <div class="user-meta">
+          <span class="user-name">{{ currentUser.username ?? 'User' }}</span>
+          <span class="user-role">{{ currentUser.role ?? '' }}</span>
+        </div>
+        <i class="pi pi-angle-down chevron" [class.rotated]="showUserMenu"></i>
+      </div>
+
+      @if (showUserMenu) {
+        <div class="user-dropdown">
+          <button class="dropdown-item" (click)="goToProfile()">
+            <i class="pi pi-user"></i><span>My Profile</span>
+          </button>
+          @if (isAdmin) {
+            <button class="dropdown-item" (click)="goToSettings()">
+              <i class="pi pi-cog"></i><span>Settings</span>
+            </button>
+          }
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item danger" (click)="logout()">
+            <i class="pi pi-power-off"></i><span>Logout</span>
+          </button>
+        </div>
+      }
+    </div>
+
+  </div>
+</header>

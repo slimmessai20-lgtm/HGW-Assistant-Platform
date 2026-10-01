@@ -1,0 +1,104 @@
+<div class="dashboard">
+
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Overview of your configured Home Gateways</p>
+    </div>
+    <button class="refresh-btn" (click)="pingAll()" [class.spinning]="pinging">
+      <i class="pi pi-refresh"></i> Refresh
+    </button>
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────────────── -->
+  @if (loading) {
+    <div class="loading-center">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Loading gateways...</span>
+    </div>
+  }
+
+  <!-- ── Gateway cards ─────────────────────────────────────────────── -->
+  @if (!loading) {
+    <div class="gw-grid">
+      @for (gw of gateways; track gw.id) {
+        <div class="gw-card">
+
+          <!-- Brand stripe + ping dot -->
+          <div class="gw-card-top" [style.borderColor]="brandColor(gw.brand)">
+            <div class="brand-badge" [style.background]="brandColor(gw.brand)">
+              @if (brandFlag(gw.brand)) {
+                <img class="brand-flag" [src]="brandFlag(gw.brand)" [alt]="gw.brand" />
+              }
+              {{ gw.brand || 'HGW' }}
+            </div>
+            <div class="ping-info">
+              <span class="ping-dot {{ pingClass(gw) }}"></span>
+              <span class="ping-label">{{ pingLabel(gw) }}</span>
+            </div>
+          </div>
+
+          <!-- Name + host -->
+          <div class="gw-card-body">
+            <h3 class="gw-name">{{ gw.name }}</h3>
+            <code class="gw-host">{{ gw.telnet_host || gw.ipv4_address || '—' }}</code>
+
+            <div class="gw-meta">
+              <div class="meta-row">
+                <span class="meta-key">MAC</span>
+                <code class="meta-val">{{ gw.mac_address }}</code>
+              </div>
+              @if (gw.software_version) {
+                <div class="meta-row">
+                  <span class="meta-key">Version</span>
+                  <code class="meta-val">{{ gw.software_version }}</code>
+                </div>
+              }
+              @if (gw.surname) {
+                <div class="meta-row">
+                  <span class="meta-key">Hostname</span>
+                  <code class="meta-val">{{ gw.surname }}</code>
+                </div>
+              }
+              <div class="meta-row">
+                <span class="meta-key">Status</span>
+                <span class="status-chip" [class]="'status-' + gw.status">{{ gw.status }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="gw-card-actions">
+            <button class="btn-chat" (click)="openChat(gw)">
+              <i class="pi pi-comments"></i> Open Chat
+            </button>
+            <a class="btn-detail" [routerLink]="['/dashboard/entries', gw.id]">
+              <i class="pi pi-eye"></i>
+            </a>
+          </div>
+
+        </div>
+      }
+
+      <!-- Add card -->
+      <a class="gw-card gw-add-card" routerLink="/dashboard/entries/add">
+        <i class="pi pi-plus-circle"></i>
+        <span>Add Gateway</span>
+      </a>
+
+    </div>
+
+    <!-- Empty state -->
+    @if (gateways.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-server"></i>
+        <p>No gateway configured yet.</p>
+        <a routerLink="/dashboard/entries/add" class="btn-add-first">
+          <i class="pi pi-plus"></i> Add your first gateway
+        </a>
+      </div>
+    }
+  }
+
+</div>

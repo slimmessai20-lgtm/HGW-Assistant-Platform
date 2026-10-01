@@ -1,0 +1,147 @@
+<div class="page-container animate-fade-in">
+  <p-toast></p-toast>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <a routerLink="/dashboard/entries" class="btn-back">
+        <i class="pi pi-arrow-left"></i>
+      </a>
+      <h1>
+        <i class="pi pi-server"></i> 
+        {{ isEditMode ? 'Edit Gateway' : 'Add New Gateway' }}
+      </h1>
+      <p>{{ isEditMode ? 'Update existing device configuration' : 'Register a new Home Gateway device' }}</p>
+    </div>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- Identification -->
+    <div class="card form-section">
+      <h3 class="section-title"><i class="pi pi-id-card"></i> Identification</h3>
+      <div class="fields-row">
+        <div class="field">
+          <label>Device Name <span class="required">*</span></label>
+          <input pInputText [(ngModel)]="form.name" placeholder="HGW-Salon" />
+        </div>
+        <div class="field">
+          <label>Brand / Operator</label>
+          <p-select [options]="brandOptions" [(ngModel)]="form.brand"
+            optionLabel="label" optionValue="value"
+            (onChange)="onBrandChange()"
+            placeholder="Select..." styleClass="w-full">
+          </p-select>
+        </div>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label>Nickname <small class="hint">(auto-fill from IPv4)</small></label>
+          <div class="input-with-loader">
+            <input pInputText [(ngModel)]="form.surname" placeholder="HGW-192-168-1-1" />
+            <i *ngIf="surnameLoading" class="pi pi-spin pi-spinner loading-icon"></i>
+          </div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <p-select [options]="statusOptions" [(ngModel)]="form.status"
+            optionLabel="label" optionValue="value" styleClass="w-full">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Device Info KPIs -->
+    <div class="card form-section">
+      <h3 class="section-title"><i class="pi pi-microchip"></i> Device Info KPIs</h3>
+      <div class="fields-row">
+        <div class="field">
+          <label>Serial Number <small class="hint">(DeviceInfo.SerialNumber)</small></label>
+          <input pInputText [(ngModel)]="form.serial_number"
+            placeholder="JD29V1W6000002" class="mono" />
+        </div>
+        <div class="field">
+          <label>Base MAC <small class="hint">(DeviceInfo.BaseMAC)</small></label>
+          <input pInputText [(ngModel)]="form.base_mac"
+            placeholder="4c:22:f3:cb:57:20" class="mono" />
+        </div>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label>MAC Address <small class="hint">(Optional, will auto-fill)</small></label>
+          <input pInputText [(ngModel)]="form.mac_address"
+            (input)="formatMac()" placeholder="AA:BB:CC:DD:EE:FF"
+            maxlength="17" class="mono" />
+        </div>
+        <div class="field">
+          <label>Software Version</label>
+          <input pInputText [(ngModel)]="form.software_version" placeholder="15.21.12" class="mono" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Network Addresses -->
+    <div class="card form-section">
+      <h3 class="section-title"><i class="pi pi-globe"></i> Network Addresses</h3>
+      <div class="fields-row">
+        <div class="field">
+          <label>IPv4 Address</label>
+          <input pInputText [(ngModel)]="form.ipv4_address"
+            (ngModelChange)="onIpv4Change()"
+            placeholder="192.168.1.1" class="mono" />
+        </div>
+        <div class="field">
+          <label>IPv6 Address</label>
+          <input pInputText [(ngModel)]="form.ipv6_address" placeholder="fe80::1" class="mono" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Telnet Connection -->
+    <div class="card form-section">
+      <h3 class="section-title"><i class="pi pi-server"></i> Telnet Connection</h3>
+      <div class="fields-row">
+        <div class="field">
+          <label>Telnet Host <small class="hint">(auto from IPv4)</small></label>
+          <input pInputText [(ngModel)]="form.telnet_host" placeholder="192.168.1.1" class="mono" />
+        </div>
+        <div class="field field-small">
+          <label>Port</label>
+          <p-inputNumber [(ngModel)]="form.telnet_port" [min]="1" [max]="65535"
+            styleClass="w-full" />
+        </div>
+      </div>
+      <div class="fields-row">
+        <div class="field">
+          <label>Telnet User</label>
+          <input pInputText [(ngModel)]="form.telnet_user" placeholder="root" class="mono" />
+        </div>
+        <div class="field">
+          <label>Telnet Password</label>
+          <input pInputText [(ngModel)]="form.telnet_password" type="password"
+            placeholder="••••••••" class="mono" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card form-section full-width">
+      <h3 class="section-title"><i class="pi pi-file-edit"></i> Notes</h3>
+      <textarea pTextarea [(ngModel)]="form.notes" rows="3"
+        placeholder="Additional information..." style="width:100%; resize:vertical;">
+      </textarea>
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <a routerLink="/dashboard/entries" class="btn-cancel">Cancel</a>
+    <p-button label="Save Entry" icon="pi pi-check"
+      [loading]="isLoading"
+      [disabled]="!form.name || isLoading"
+      (onClick)="submit()">
+    </p-button>
+  </div>
+
+</div>

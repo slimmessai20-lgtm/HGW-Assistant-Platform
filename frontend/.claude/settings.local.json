@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(timeout 30 python -c ' *)",
+      "Bash(npx tsc *)",
+      "Bash(python -m pytest tests/test_prompts.py -v)",
+      "Bash(python -m pytest tests/test_auth.py -v)",
+      "Bash(python -m pytest tests/ -v --tb=no)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\(k for k in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}\\)\\)\")"
+    ]
+  }
+}
