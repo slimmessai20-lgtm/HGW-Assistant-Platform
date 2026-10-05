@@ -1,16 +1,16 @@
-# 🏠 HGW-Assistant-Platform (Home Gateway AI Assistant)
+# 🪐 HGW-Assistant-Platform (Home Gateway AI Assistant)
 
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Groq](https://img.shields.io/badge/AI-Groq%20LLaMA%203-F37A20?style=for-the-badge)
+![AI](https://img.shields.io/badge/AI-GPT--OSS%20120B-F37A20?style=for-the-badge)
 
 An intelligent, containerized AI assistant designed specifically for enterprise network operations, automating tasks like VoIP configuration, DHCP management, firewall rule analysis, and ping diagnostics via a modern web interface.
 
 ## 🌟 Key Features
 
-- **Conversational Interface:** Communicate naturally with an LLM (powered by Groq/LLaMA 3) to configure your network.
+- **Conversational Interface:** Communicate naturally with an LLM (powered by GPT-OSS 120B) to configure your network.
 - **Voice Control (Speech-to-Text):** Send commands via microphone.
 - **Secure Authentication:** JWT-based authentication (HS256) with role-based access control (Admin, Engineer, User).
 - **Tool-Calling Architecture (MCP):** 48 specialized tools integrated allowing the AI to execute real commands on the Home Gateway (Telnet automation, Ping, Traceroute, Wi-Fi config).
@@ -20,7 +20,7 @@ An intelligent, containerized AI assistant designed specifically for enterprise 
 
 This platform is divided into three main components:
 
-- `/frontend` - **Angular 17 SPA** served by Nginx. Features reactive forms, voice recording, chat history, and dark mode UI.
+- `/frontend` - **Angular 21 SPA** served by Nginx. Features reactive forms, voice recording, chat history, and dark mode UI.
 - `/backend` - **FastAPI (Python 3.12)**. Handles API routing, JWT generation, database interactions (SQLAlchemy), and LLM orchestration.
 - `/mcp-server` - **Model Context Protocol (MCP)**. Python-based standalone server defining the tools that the LLM can execute.
 
